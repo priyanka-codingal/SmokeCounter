@@ -1,76 +1,59 @@
 package com.example.smokecounter;
 
-import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
-import com.google.firebase.auth.FirebaseAuth;
-
-import java.util.concurrent.TimeUnit;
-import android.content.SharedPreferences;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView welcomeText, countText;
-    private Button addCigaretteBtn, monthlyLogBtn, logoutBtn;
-
-    private SmokeManager smokeManager;
+    private TextView countText;
+    private Button addCigBtn, logoutBtn;
 
     private SharedPreferences prefs;
     private int cigaretteCount;
+    private String today;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        welcomeText = findViewById(R.id.welcomeText);
         countText = findViewById(R.id.countText);
-        addCigaretteBtn = findViewById(R.id.addCigaretteBtn);
-        monthlyLogBtn = findViewById(R.id.monthlyLogBtn);
+        addCigBtn = findViewById(R.id.addCigaretteBtn);
         logoutBtn = findViewById(R.id.logoutBtn);
 
-        smokeManager = SmokeManager.getInstance(this);
+        prefs = getSharedPreferences("SmokePrefs", Context.MODE_PRIVATE);
 
-        // Display user name
-        String user = getIntent().getStringExtra("userIdentifier");
-        welcomeText.setText("Welcome " + (user != null ? user : "User"));
+        // Get today's date as key
+        today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-        // Show current daily count
-        countText.setText("Cigarettes today: " + smokeManager.getDailyCount());
+        // Load count for today
+        cigaretteCount = prefs.getInt(today, 0);
+        updateCountText();
 
-        addCigaretteBtn.setOnClickListener(v -> {
-            smokeManager.incrementCount();
-            countText.setText("Cigarettes today: " + smokeManager.getDailyCount());
-        });
-
-        monthlyLogBtn.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, MonthlyLogActivity.class));
+        addCigBtn.setOnClickListener(v -> {
+            cigaretteCount++;
+            saveCount();
+            updateCountText();
         });
 
         logoutBtn.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            com.google.firebase.auth.FirebaseAuth.getInstance().signOut();
             finish();
         });
-
-        scheduleDailyReset();
     }
 
-    private void scheduleDailyReset() {
-        PeriodicWorkRequest resetWorkRequest =
-                new PeriodicWorkRequest.Builder(DailyResetWorker.class, 24, TimeUnit.HOURS)
-                        .build();
-        WorkManager.getInstance(this).enqueue(resetWorkRequest);
-    }
     private void saveCount() {
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt("cigaretteCount", cigaretteCount);
+        editor.putInt(today, cigaretteCount); // Save count for today only
         editor.apply();
     }
 
