@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "856474999158",
+    "project_id": "smoke-counter-14e92",
+    "storage_bucket": "smoke-counter-14e92.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:856474999158:android:59220993ea9db5f7e1c257",
+        "android_client_info": {
+          "package_name": "com.example.smokecounter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-G4enMxAv6jzZXBExa1M90ZD3_OlbxuI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
