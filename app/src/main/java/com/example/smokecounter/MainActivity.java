@@ -12,6 +12,7 @@ import androidx.work.WorkManager;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.concurrent.TimeUnit;
+import android.content.SharedPreferences;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,6 +20,9 @@ public class MainActivity extends AppCompatActivity {
     private Button addCigaretteBtn, monthlyLogBtn, logoutBtn;
 
     private SmokeManager smokeManager;
+
+    private SharedPreferences prefs;
+    private int cigaretteCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,5 +67,14 @@ public class MainActivity extends AppCompatActivity {
                 new PeriodicWorkRequest.Builder(DailyResetWorker.class, 24, TimeUnit.HOURS)
                         .build();
         WorkManager.getInstance(this).enqueue(resetWorkRequest);
+    }
+    private void saveCount() {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt("cigaretteCount", cigaretteCount);
+        editor.apply();
+    }
+
+    private void updateCountText() {
+        countText.setText("Cigarettes smoked today: " + cigaretteCount);
     }
 }
